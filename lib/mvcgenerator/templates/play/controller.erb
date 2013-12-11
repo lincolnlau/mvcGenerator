@@ -1,0 +1,35 @@
+package controllers<%= "." + options[:package] if options[:package]%>;
+
+import play.*;
+import play.mvc.*;
+
+public class <%=name%>Controller extends <%= options[:super] ? options[:super] : 'Controller'%> {
+	
+<% 
+   actions.each do |action|
+   aps = action.split(',,')
+
+   action_parameters = aps.shift.split(',')
+   action_name = action_parameters.shift
+   action_parameters.shift
+   input_parameters = action_parameters.shift.split('|') if action_parameters.length > 0
+   output_parameters = aps.shift.split(',') if aps.length > 0 
+-%>
+    public static Result <%=action_name%>(<%if input_parameters -%><% input_parameters.each do |parameter| -%><% para = parameter.split(':') -%><%= para[1] + ' ' +para[0]%><%parameter == input_parameters.last ? "" : ", "%><% end -%><% end -%>){
+		
+		/*
+		 * TODO:: you can put you logical here	
+		 */
+	<% if output_parameters -%>
+		<% out_para_array = [] -%>
+		<% output_parameters.each do |parameter| -%>
+			<% para = parameter.split(':')%>
+			<%= para[1] %> <%=para[0]%>; 
+			<% out_para_array.push para[0] -%> 
+		<% end -%>
+	return ok(<%= options[:package].gsub(/\./, "_") + "_" if options[:package] %><%= action_name %>.render(<%= out_para_array.join ", "%>);
+	<% else -%>
+		
+		return ok(<%= options[:package].gsub(/\./, "_") + "_" if options[:package] %><%= action_name %>.render();
+	<% end -%>}
+<% end -%>}

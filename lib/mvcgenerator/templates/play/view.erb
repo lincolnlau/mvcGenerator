@@ -1,0 +1,11 @@
+@(<% parameters.each do |parameter| -%><% ps = parameter.split(":")-%><%=ps[0] + ": " + ps[1] + (parameter == parameters.last ? "" : " ,")%><%end-%>)
+
+@scripts = {
+    <script type="text/javascript" src="<%= name%>.js"></script>
+}
+
+@main("Title",scripts){
+
+   Html content here ...
+
+}

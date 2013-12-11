@@ -1,0 +1,24 @@
+package models<%='.' + options[:package] if(options[:package])%>;
+
+public class <%=name.capitalize%>ViewModel <%if(options[:super]) -%> extends <%=options[:super]%><% end -%> {
+    
+<% fields.each do |field| -%>
+<% ps = field.split(":")-%>
+    private <%=ps[1] + " " + ps[0] + ";\n"%>
+<%end-%>
+    
+    <% fields.each do |field| -%><% ps = field.split(":")-%>  
+    /**
+     * @parameter set <%=ps[0]%>'s value
+     */
+    public void set<%=ps[0].capitalize%>(<%=ps[1]%> <%=ps[0]%>) {
+        this.<%=ps[0]%> = <%=ps[0]%>;
+    } 
+
+    /**
+     * @return <%=ps[1]%>
+     */
+    public <%=ps[1]%> <%if(ps[1] == "boolean")-%>is<% else -%>get<% end -%><%=ps[0].capitalize%>() {
+        return this.<%=ps[0]%>;
+    }
+<%end-%>}
