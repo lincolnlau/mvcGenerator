@@ -1,0 +1,29 @@
+package helpers<%= "." + options[:package] if options[:package]%>;
+
+import java.util.*;
+import models<%= "." + options[:package] if options[:package]%>.<%=name.capitalize%>ViewModel;
+
+
+public class <%=name.capitalize%>Helper {
+	
+	public static List<<%=name.capitalize%>ViewModel> findAll(int pageIndex, int pageSize) {
+		List<<%=name.capitalize%>ViewModel> pagedList = new ArrayList<<%=name.capitalize%>ViewModel>();
+		
+		return pagedList;
+	}
+	
+	public static int save(<%=name.capitalize%>ViewModel model){
+		
+		return 1;
+	}
+	
+	public static <%=name.capitalize%>ViewModel getById(int id){
+		
+		return new <%=name.capitalize%>ViewModel();
+	}
+	
+	public static boolean deleteById(int id){
+		
+		return true;
+	}
+}

@@ -31,16 +31,16 @@ module Mvcgenerator
         class_option :package, default: nil
       
       def create_pojo
-        path = "#{name.capitalize}.java"
+        path = "#{name.capitalize}ViewModel.java"
         path = options[:package].gsub(/\./, "/") + path if options[:package]
-        template('templates/play/pojo.erb', 'models/'+ path)
+        template('templates/play/pojo.erb', 'app/models/'+ path)
       end
     end
     
     class Controller < Generator
       
       argument :name
-      argument :actions, type: :array, default: [], banner: "actionName,method,[parameterName:parameterType|]*,[viewParameterName:viewParameterType|]*"
+      argument :actions, type: :array, default: [], banner: "actionName,method,[parameterName:parameterType,],,[viewParameterName:viewParameterType,]*"
       
       class_option :skipview, type: :boolean, default: false
       class_option :super, default: nil
@@ -49,7 +49,7 @@ module Mvcgenerator
       def create_controller
         path = "#{name.capitalize}Controller.java"
         path = options[:package].gsub(/\./, "/") + path if options[:package]
-        template('templates/play/controller.erb', 'controllers/'+ path)
+        template('templates/play/controller.erb', 'app/controllers/'+ path)
       end
       
       def add_route
@@ -84,20 +84,20 @@ module Mvcgenerator
       end
       
       def add_view
-        
-        actions.each do |action|
-          arr = []
-          ap = action.split(",,")
-          name = ap[0].split(",").first
-          name = options[:package].gsub(/\./, "_") + "_" + name if options[:package]
-          #puts action.split(",,")
-          arr.push name
-          arr = [name] + ap[1].split(",") if ap.length > 1
+        if !options[:skipview]
+          actions.each do |action|
+            arr = []
+            ap = action.split(",,")
+            name = ap[0].split(",").first
+            name = options[:package].gsub(/\./, "_") + "_" + name if options[:package]
+            #puts action.split(",,")
+            arr.push name
+            arr = [name] + ap[1].split(",") if ap.length > 1
 
-          invoke View, arr, :package => options[:package]
+            invoke View, arr, :package => options[:package]
+          end
         end
       end
-      
     end
     
     class View < Generator
@@ -108,48 +108,84 @@ module Mvcgenerator
       class_option :package, default: nil
       
       def create_view
-        path = "#{name}.scala.html"
-        path = options[:package].gsub(/\./, "_") + "_" + path if options[:package]
-        template('templates/play/view.erb', 'views/'+ path)  
+        path = "views/#{name}.scala.html"
+        path = options[:package].gsub(/\./, "/") + path if options[:package]
+        template('templates/play/view.erb', 'app/'+ path)  
       end
     end
     
     
     class Scoffold < Generator
       
-      def create_viewmodel
-        
-      end
+      argument :name
+      argument :fields, type: :array, :required => true, banner: "fieldName:fieldType"
       
-      def create_helper
-        
-      end
+      class_option :super, default: nil
+      class_option :package, default: nil
+       
       
       def create_controller
         
+        ### add model
+        invoke Pojo, [name] + fields , {:package => options[:package], :super => options[:super]}
+        
+        path = "#{name.capitalize}Controller.java"
+        path = options[:package].gsub(/\./, "/") + path if options[:package]
+        template('templates/play/scoffold/controller.erb', 'app/controllers/'+ path)
+        
+        #add route
+        controller = "#{name.capitalize}Controller"
+        controller = options[:package].gsub(/\./, "/") + controller if options[:package]
+        
+        routes = []
+        routes.push("GET      /#{name.capitalize}/                controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
+        routes.push("GET      /#{name.capitalize}/:pageIndex      controllers.#{controller}.index(pageIndex: Integer, pageSize: Integer ?= 10)" )
+        routes.push("GET      /#{name.capitalize}/new             controllers.#{controller}.create()")
+        routes.push("GET      /#{name.capitalize}/update/:id      controllers.#{controller}.update(id: Integer)")
+        routes.push("POST     /#{name.capitalize}/save            controllers.#{controller}.save()")
+        routes.push("GET      /#{name.capitalize}/:id             controllers.#{controller}.show(id: Integer)")
+        routes.push("GET      /#{name.capitalize}/delete/:id      controllers.#{controller}.delete(id: Integer)")
+        
+        append_to_file "conf/routes", "\n##{name.capitalize}\n" +routes.join("\n")
+      
       end
       
       def create_view
         
+        path = "#{name}/views/"
+        path = options[:package].gsub(/\./, "/") + path if options[:package]
+        template('templates/play/scoffold/views/form.erb', 'app/'+ path + "/form.scala.html")
+        template('templates/play/scoffold/views/index.erb', 'app/'+ path + "/index.scala.html")
+        template('templates/play/scoffold/views/show.erb', 'app/'+ path + "/show.scala.html")
+
       end
       
-      def add_route
+      def create_helper
+        
+        helper = "#{name.capitalize}Helper.java"
+        helper = options[:package].gsub(/\./, "/") + controller if options[:package]
+        
+        template('templates/play/scoffold/helper.erb', 'app/helpers/'+ helper)
         
       end
+      
+      
     end
-    
+=begin    
     class Sub < Thor
       desc "sub", "command"
       def command
         puts "sub command"
       end
     end
-    
+=end    
     class Play < Thor
       
       register(Pojo, 'pojo', 'pojo is comming', 'make pojo file')
       register(Controller, 'controller', 'controller is comming', 'make controller file')
       register(View, 'view', 'view is comming', 'make view file')
+      
+      register(Scoffold, 'scoffold', 'view is comming', 'make view file')
       
       #desc "remote SUBCOMMAND ...ARGS", "manage set of tracked repositories"
       #subcommand "sub", Sub

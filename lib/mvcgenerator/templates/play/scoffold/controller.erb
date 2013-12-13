@@ -1,0 +1,82 @@
+package controllers<%= "." + options[:package] if options[:package]%>;
+
+import play.*;
+import play.mvc.*;
+import play.data.*;
+
+import java.util.*;
+
+import <%= options[:package] + "." if options[:package]%><%=name%>.views.html.*;
+
+import helpers<%= "." + options[:package] if options[:package]%>.<%=name.capitalize%>Helper;
+import models<%= "." + options[:package] if options[:package]%>.<%=name.capitalize%>ViewModel;
+
+public class <%=name.capitalize%>Controller extends <%= options[:super] ? options[:super] : 'Controller'%> {
+	
+	static Form<<%=name.capitalize%>ViewModel> <%= name %>From = Form.form(<%=name.capitalize%>ViewModel.class);
+	
+	public static Result index(int pageIndex, int pageSize){
+		
+		// pagedList
+		List<<%=name.capitalize%>ViewModel> model = <%=name.capitalize%>Helper.findAll(pageIndex, pageSize);
+		
+		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.index.render(model));
+	}
+	
+	/**
+	 * show <%=name.capitalize%> record in edit mode
+	 * when it's in create mode,  the id is 0, when update, id is <%=name.capitalize%>ViewModel model record's id
+	 */
+	public static Result create(){
+		
+		<%=name.capitalize%>ViewModel model = new <%=name.capitalize%>ViewModel();
+		
+		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.form.render(model));
+	}
+	
+	/**
+	 * add a <%=name.capitalize%> record
+ 	 */
+	public static Result update(int id){
+		<%=name.capitalize%>ViewModel model =  <%=name.capitalize%>Helper.getById(id);
+		
+		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.form.render(model));
+	}
+	
+	/**
+	 * save <%=name.capitalize%> record
+ 	 */
+	public static Result save(){
+	    
+		<%=name.capitalize%>ViewModel model = <%= name %>From.bindFromRequest().get();
+		
+		if(<%= name %>From.hasErrors()){
+			return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.form.render(model));
+		} else {
+			int id = <%=name.capitalize%>Helper.save(model);
+			
+			return show(id);
+		}
+		
+		
+	}
+	
+	
+	/**
+	 * show the <%=name.capitalize%> record by id
+ 	 */
+	public static Result show(int id){
+		<%=name.capitalize%>ViewModel model = <%=name.capitalize%>Helper.getById(id);
+		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.show.render(model));
+	}
+	
+	/**
+	 * delete the <%=name.capitalize%> record by id
+ 	 */
+	public static Result delete(int id){
+		
+		<%=name.capitalize%>Helper.deleteById(id);
+		
+		return index(0, 10);
+	}
+}
