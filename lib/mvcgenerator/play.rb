@@ -138,7 +138,7 @@ module Mvcgenerator
         controller = options[:package].gsub(/\./, "/") + controller if options[:package]
         
         routes = []
-        routes.push("GET      /#{name.capitalize}/                controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
+        routes.push("GET      /#{name.capitalize}                 controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
         routes.push("GET      /#{name.capitalize}/:pageIndex      controllers.#{controller}.index(pageIndex: Integer, pageSize: Integer ?= 10)" )
         routes.push("GET      /#{name.capitalize}/new             controllers.#{controller}.create()")
         routes.push("GET      /#{name.capitalize}/update/:id      controllers.#{controller}.update(id: Integer)")
