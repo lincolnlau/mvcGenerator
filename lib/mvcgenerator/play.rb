@@ -139,7 +139,6 @@ module Mvcgenerator
         
         routes = []
         routes.push("GET      /#{name.capitalize}                 controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
-        routes.push("GET      /#{name.capitalize}/:pageIndex      controllers.#{controller}.index(pageIndex: Integer, pageSize: Integer ?= 10)" )
         routes.push("GET      /#{name.capitalize}/new             controllers.#{controller}.create()")
         routes.push("GET      /#{name.capitalize}/update/:id      controllers.#{controller}.update(id: Integer)")
         routes.push("POST     /#{name.capitalize}/save            controllers.#{controller}.save()")

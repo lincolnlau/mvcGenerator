@@ -1,1 +1,24 @@
-@(model : List[<%=name.capitalize%>ViewModel])
+@(models : List[<%=name.capitalize%>ViewModel])
+@main("Index"){
+<div><a class="btn btn-success active" href="@routes.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>Controller.create()">Create</a></div>
+<% field_names_array = [] -%>
+<table class="table table-striped table-hover">
+	<thead>
+	<tr>
+	<% fields.each do |field| -%>
+	<% ps = field.split(":") -%><th><%=ps[0]%><% field_names_array.push(ps[0])%></th>
+	<%end-%></tr>
+	</thead>
+	<tbody>
+	@if(models != null && models.length != 0) {
+		@for(model <- models){
+		<tr><% field_names_array.each do |field| -%><td>@model.get<%=field.capitalize%>()</td><% end -%></tr>
+		}
+	} else {
+		<tr><td colspan="<%= field_names_array.length %>">There's no record exist!! ^_^'</td></tr>
+	}
+	</tbody>
+</table>
+}
+
+
