@@ -154,9 +154,17 @@ module Mvcgenerator
         
         append_to_file "conf/routes", "\n##{name.capitalize}\n" +routes.join("\n")
         
-        create_file "app/assets/javascripts/#{package_to_directory}#{name}.coffee" if !options[:skipjs]
+        if !options[:skipjs]
+          create_file "app/assets/javascripts/#{package_to_directory}#{name}/index.coffee"
+          create_file "app/assets/javascripts/#{package_to_directory}#{name}/form.coffee"
+          create_file "app/assets/javascripts/#{package_to_directory}#{name}/show.coffee"
+        end
         
-        create_file "app/assets/stylesheets/#{package_to_directory}#{name}.less"   if !options[:skipcss]
+        if !options[:skipcss]
+          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/index.less"
+          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/index.less"
+          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/index.less"
+        end
       
       end
       
