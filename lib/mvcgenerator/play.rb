@@ -10,7 +10,7 @@ module Mvcgenerator
           File.dirname(__FILE__)
       end 
       
-=begin
+
       def exist_play_project
 
         if(!File.exist?(File.expand_path("conf/application.conf")))
@@ -18,7 +18,6 @@ module Mvcgenerator
           raise Error, "This command must be run in a play project's root direcotry!!"
         end
       end
-=end
       
     end
     
@@ -32,7 +31,7 @@ module Mvcgenerator
       
       def create_pojo
         path = "#{name.capitalize}ViewModel.java"
-        path = options[:package].gsub(/\./, "/") + path if options[:package]
+        path = options[:package].gsub(/\./, "/") + "/" + path if options[:package]
         template('templates/play/pojo.erb', 'app/models/'+ path)
       end
     end
@@ -48,8 +47,9 @@ module Mvcgenerator
       
       def create_controller
         path = "#{name.capitalize}Controller.java"
-        path = options[:package].gsub(/\./, "/") + path if options[:package]
-        template('templates/play/controller.erb', 'app/controllers/'+ path)
+        path = options[:package] ? options[:package].gsub(/\./, "/") + path : "controllers/" + path;
+        #template('templates/play/controller.erb', 'app/controllers/'+ path)
+        template('templates/play/controller.erb', 'app/'+ path)
       end
       
       def add_route
@@ -69,7 +69,8 @@ module Mvcgenerator
             #action = packgePath("controllers") + "." + name.capitalize + 'Controller.' +  actionName + "("
             
             action = "#{name.capitalize}Controller." + actionName + "("
-            action = "controllers." + options[:package] + "." + action if options[:package]
+            #action = "controllers." + options[:package] + "." + action if options[:package]
+            action =  (options[:package] ?  options[:package] : "controllers") + "." + action
             
             action += input_parameters.join(", ").gsub(/(\:)(\w)+/){|s| Play.getPackType(s) } if input_parameters.length > 0
             
@@ -122,6 +123,9 @@ module Mvcgenerator
       
       class_option :super, default: nil
       class_option :package, default: nil
+      
+      class_option :skipjs, type: :boolean, default: true
+      class_option :skipcss, type: :boolean, default: true
        
       
       def create_controller
@@ -129,13 +133,16 @@ module Mvcgenerator
         ### add model
         invoke Pojo, [name] + fields , {:package => options[:package], :super => options[:super]}
         
+        #path = "#{package_to_directory}#{name.capitalize}Controller.java"
+        #path = options[:package].gsub(/\./, "/") + path if options[:package]
         path = "#{name.capitalize}Controller.java"
-        path = options[:package].gsub(/\./, "/") + path if options[:package]
+        path = package_to_directory + path if options[:package]
+         
         template('templates/play/scoffold/controller.erb', 'app/controllers/'+ path)
         
         #add route
         controller = "#{name.capitalize}Controller"
-        controller = options[:package].gsub(/\./, "/") + controller if options[:package]
+        controller = options[:package] + "." + controller if options[:package]
         
         routes = []
         routes.push("GET      /#{name.capitalize}                 controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
@@ -146,13 +153,17 @@ module Mvcgenerator
         routes.push("GET      /#{name.capitalize}/delete/:id      controllers.#{controller}.delete(id: Integer)")
         
         append_to_file "conf/routes", "\n##{name.capitalize}\n" +routes.join("\n")
+        
+        create_file "app/assets/javascripts/#{package_to_directory}#{name}.coffee" if !options[:skipjs]
+        
+        create_file "app/assets/stylesheets/#{package_to_directory}#{name}.less"   if !options[:skipcss]
       
       end
       
       def create_view
         
-        path = "#{name}/views/"
-        path = options[:package].gsub(/\./, "/") + path if options[:package]
+        path = "#{package_to_directory}#{name}/views/"
+        #path = options[:package].gsub(/\./, "/") + path if options[:package]
         template('templates/play/scoffold/views/form.erb', 'app/'+ path + "/form.scala.html")
         template('templates/play/scoffold/views/index.erb', 'app/'+ path + "/index.scala.html")
         template('templates/play/scoffold/views/show.erb', 'app/'+ path + "/show.scala.html")
@@ -162,12 +173,16 @@ module Mvcgenerator
       def create_helper
         
         helper = "#{name.capitalize}Helper.java"
-        helper = options[:package].gsub(/\./, "/") + controller if options[:package]
+        helper = package_to_directory + helper if options[:package]
         
         template('templates/play/scoffold/helper.erb', 'app/helpers/'+ helper)
         
       end
       
+      private
+      def package_to_directory
+        options[:package] ? dir = options[:package].gsub(/\./, "/") + "/" : "" 
+      end
       
     end
 =begin    

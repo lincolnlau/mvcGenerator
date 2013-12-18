@@ -1,4 +1,4 @@
-@(model : <%=name.capitalize%>ViewModel)
+@(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>ViewModel)
 @title(id: Int) = @{
 	if(id > 0) {
 		"Update"
@@ -6,8 +6,10 @@
 		"Create"
 	}
 }
+
+
 @main(title(model.getId())){
-<form action="@routes.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>Controller.save()" method="post" class="form-horizontal" role="form">
+<form action="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.save()" method="post" class="form-horizontal" role="form">
 <div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title">@if(model.getId() > 0 ) { update } else { create } <%= name %></h3></div>
 	<div class="panel-body">
@@ -22,7 +24,7 @@
 		
 	</div>
 	<div class="panel-footer">
-		<button class="btn btn-success" type="submit">Save</button><a class="btn btn-link" href="@routes.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
+		<button class="btn btn-success" type="submit">Save</button><a class="btn btn-link" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
 	</div>
 </div>
 </form>

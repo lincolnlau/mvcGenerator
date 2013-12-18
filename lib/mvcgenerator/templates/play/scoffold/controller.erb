@@ -20,7 +20,7 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
 		// pagedList
 		List<<%=name.capitalize%>ViewModel> model = <%=name.capitalize%>Helper.findAll(pageIndex, pageSize);
 		
-		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.index.render(model));
+		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.index.render(model));
 	}
 	
 	/**
@@ -31,7 +31,7 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
 		
 		<%=name.capitalize%>ViewModel model = new <%=name.capitalize%>ViewModel();
 		
-		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.form.render(model));
+		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.form.render(model));
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
 	public static Result update(int id){
 		<%=name.capitalize%>ViewModel model =  <%=name.capitalize%>Helper.getById(id);
 		
-		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.form.render(model));
+		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.form.render(model));
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
 		<%=name.capitalize%>ViewModel model = <%= name %>From.bindFromRequest().get();
 		
 		if(<%= name %>From.hasErrors()){
-			return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.form.render(model));
+			return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.form.render(model));
 		} else {
 			int id = <%=name.capitalize%>Helper.save(model);
 			
@@ -67,7 +67,7 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
  	 */
 	public static Result show(int id){
 		<%=name.capitalize%>ViewModel model = <%=name.capitalize%>Helper.getById(id);
-		return ok(<%= options[:package].gsub(/\./, "_") + "." if options[:package]%><%=name%>.views.html.show.render(model));
+		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.show.render(model));
 	}
 	
 	/**

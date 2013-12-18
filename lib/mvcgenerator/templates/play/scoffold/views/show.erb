@@ -1,4 +1,4 @@
-@(model : <%=name.capitalize%>ViewModel)
+@(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>ViewModel)
 @main("Detail"){
 <div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title"><%= name %></h3></div>
@@ -11,7 +11,7 @@
 		</div>
 	</div>
 	<div class="panel-footer">
-		<a class="btn btn-success active" href="@routes.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>Controller.update(model.getId())">Update</a> <a class="btn btn-link" href="@routes.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
+		<a class="btn btn-success active" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.update(model.getId())">Update</a> <a class="btn btn-link" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
 	</div>
 </div>
 }
