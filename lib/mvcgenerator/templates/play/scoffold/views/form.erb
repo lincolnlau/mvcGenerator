@@ -13,15 +13,14 @@
 <div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title">@if(model.getId() > 0 ) { update } else { create } <%= name %></h3></div>
 	<div class="panel-body">
-		 
 		<% fields.each do |field| -%>
 		<% ps = field.split(":") -%>
+		<% if ps[0] == id -%><input type="hidden" name="<%=ps[0]>" id="<%=ps[0]%>" value="model.getId()"/><% end -%>
 		<div class="form-group">
 			<label class="col-sm-2 control-label" for="<%=ps[0]%>"><%=ps[0]%></label>
 			<div class="col-sm-10"><input type="text" class="form-control" id="<%=ps[0]%>" placeholder="<%=ps[0]%>"/></div>
 		</div>
 		<% end -%>
-		
 	</div>
 	<div class="panel-footer">
 		<button class="btn btn-success" type="submit">Save</button><a class="btn btn-link" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
