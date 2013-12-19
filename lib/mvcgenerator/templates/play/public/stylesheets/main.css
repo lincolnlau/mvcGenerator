@@ -1,0 +1,17 @@
+body {
+    min-height: 100%;
+}
+
+#main{
+    margin-top:70px;
+    position: relative;
+    height:100%;
+}
+
+#footer{
+    position: absolute;
+    right:0;
+    bottom:0;
+    text-align: center;
+    width:100%;
+}

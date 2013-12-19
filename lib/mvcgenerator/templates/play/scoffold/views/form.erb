@@ -7,7 +7,7 @@
 	}
 }
 
-@main(title(model.getId())){
+@layouts.main(title(model.getId())){
 <form action="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.save()" method="post" class="form-horizontal" role="form">
 <div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title">@if(model.getId() > 0 ) { update } else { create } <%= name %></h3></div>

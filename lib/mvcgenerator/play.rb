@@ -193,6 +193,42 @@ module Mvcgenerator
       end
       
     end
+    
+    class Init < Generator
+      
+      def initLayout
+        
+=begin
+        insert_into_file "app/views/main.scala.html", :after => "@(title: String" do
+          ', scripts: Html = Html(""), styles: Html = Html("")'
+        end
+        
+        insert_into_file "app/views/main.scala.html", :before => /\s*<\/head>/ do
+          "\n\t\t@styles"
+        end
+        
+        insert_into_file "app/views/main.scala.html", :before => /\s*<\/body>/ do
+          "\n\t\t@scripts"
+        end
+=end        
+        
+        directory "templates/play/scoffold/views/layouts", "app/views/layouts/"
+        
+        filenames = Dir.glob("app/views/layouts/*.erb") 
+        filenames.each do |filename|
+          File.rename(filename, filename[0..-5]+".scala.html")
+        end
+      end
+      
+      def installBootstrap3
+        puts "\t\tcopy css and js"
+        directory "templates/play/public", "public/"
+        
+        puts "\t\tinstall bootstrap3 into public"
+        directory "templates/bootstrap", "public/bootstrap/"  
+      end
+
+    end
 =begin    
     class Sub < Thor
       desc "sub", "command"
@@ -208,6 +244,8 @@ module Mvcgenerator
       register(View, 'view', 'view is comming', 'make view file')
       
       register(Scoffold, 'scoffold', 'view is comming', 'make view file')
+      
+      register(Init, 'init', 'initlayout', 'initlayout')
       
       #desc "remote SUBCOMMAND ...ARGS", "manage set of tracked repositories"
       #subcommand "sub", Sub

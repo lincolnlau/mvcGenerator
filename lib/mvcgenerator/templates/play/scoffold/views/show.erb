@@ -1,13 +1,13 @@
 @(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>ViewModel)
-@main("Detail"){
+@layouts.main("Detail"){
 <div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title"><%= name %></h3></div>
 	<div class="panel-body">
 		<div class="row">
 			<% fields.each do |field| -%>
 			<% ps = field.split(":") -%>
-			<div class="col-md-2"><%=ps[0]%></div><div class="col-md-10">@model.get<%= ps[0].capitalize %>()</div>
-			<%end-%>
+			<% if(ps[0] != "id") -%><div class="col-md-2"><%=ps[0]%></div><div class="col-md-10">@model.get<%= ps[0].capitalize %>()</div><% end -%>
+			<% end -%>
 		</div>
 	</div>
 	<div class="panel-footer">
