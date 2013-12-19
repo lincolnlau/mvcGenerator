@@ -162,8 +162,8 @@ module Mvcgenerator
         
         if !options[:skipcss]
           create_file "app/assets/stylesheets/#{package_to_directory}#{name}/index.less"
-          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/index.less"
-          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/index.less"
+          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/form.less"
+          create_file "app/assets/stylesheets/#{package_to_directory}#{name}/show.less"
         end
       
       end
