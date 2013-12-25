@@ -48,7 +48,6 @@ module Mvcgenerator
       def create_controller
         path = "#{name.capitalize}Controller.java"
         path = options[:package] ? options[:package].gsub(/\./, "/") + path : "controllers/" + path;
-        #template('templates/play/controller.erb', 'app/controllers/'+ path)
         template('templates/play/controller.erb', 'app/'+ path)
       end
       
@@ -66,10 +65,7 @@ module Mvcgenerator
             
             input_parameters = first
             
-            #action = packgePath("controllers") + "." + name.capitalize + 'Controller.' +  actionName + "("
-            
             action = "#{name.capitalize}Controller." + actionName + "("
-            #action = "controllers." + options[:package] + "." + action if options[:package]
             action =  (options[:package] ?  options[:package] : "controllers") + "." + action
             
             action += input_parameters.join(", ").gsub(/(\:)(\w)+/){|s| Play.getPackType(s) } if input_parameters.length > 0
@@ -91,7 +87,6 @@ module Mvcgenerator
             ap = action.split(",,")
             name = ap[0].split(",").first
             name = options[:package].gsub(/\./, "_") + "_" + name if options[:package]
-            #puts action.split(",,")
             arr.push name
             arr = [name] + ap[1].split(",") if ap.length > 1
 
@@ -111,7 +106,7 @@ module Mvcgenerator
       def create_view
         path = "views/#{name}.scala.html"
         path = options[:package].gsub(/\./, "/") + path if options[:package]
-        template('templates/play/view.erb', 'app/'+ path)  
+        template('templates/play/view.erb', 'app/views/'+ path) 
       end
     end
     
@@ -126,15 +121,33 @@ module Mvcgenerator
       
       class_option :skipjs, type: :boolean, default: true
       class_option :skipcss, type: :boolean, default: true
-       
+      
+      def create_model
+        
+        insert_into_file "conf/application.conf", "\nebean.default=\"models.*\"", :after => /^#\s*ebean.default="models.\*"$/
+        
+        #insert_into_file "conf/application.conf", :after => "/# ebean.default=\"models.*\"\n/" do
+          
+        #end
+        
+        path = "#{name.capitalize}.java"
+        path = options[:package].gsub(/\./, "/") + "/" + path if options[:package]
+        template('templates/play/scoffold/model.erb', 'app/models/'+ path)
+      end 
+      
+      
       
       def create_controller
         
         ### add model
-        invoke Pojo, [name] + fields , {:package => options[:package], :super => options[:super]}
+        #invoke Pojo, [name] + fields , {:package => options[:package], :super => options[:super]}
         
-        #path = "#{package_to_directory}#{name.capitalize}Controller.java"
-        #path = options[:package].gsub(/\./, "/") + path if options[:package]
+        id_field = nil
+        fields.each do |field|
+        ps = field.split(":")
+        id_field = ps if ps.length > 2 && ps[2] == "Id"
+        end
+        
         path = "#{name.capitalize}Controller.java"
         path = package_to_directory + path if options[:package]
          
@@ -145,12 +158,12 @@ module Mvcgenerator
         controller = options[:package] + "." + controller if options[:package]
         
         routes = []
-        routes.push("GET      /#{name.capitalize}                 controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
-        routes.push("GET      /#{name.capitalize}/new             controllers.#{controller}.create()")
-        routes.push("GET      /#{name.capitalize}/update/:id      controllers.#{controller}.update(id: Integer)")
-        routes.push("POST     /#{name.capitalize}/save            controllers.#{controller}.save()")
-        routes.push("GET      /#{name.capitalize}/:id             controllers.#{controller}.show(id: Integer)")
-        routes.push("GET      /#{name.capitalize}/delete/:id      controllers.#{controller}.delete(id: Integer)")
+        routes.push("GET      /#{name.capitalize}                         controllers.#{controller}.index(pageIndex: Integer ?= 0, pageSize: Integer ?= 10)" )
+        routes.push("GET      /#{name.capitalize}/new                     controllers.#{controller}.create()")
+        routes.push("GET      /#{name.capitalize}/update/:#{id_field[0]}  controllers.#{controller}.update(#{id_field[0]}: #{Play.getPackType(id_field[1])})")
+        routes.push("POST     /#{name.capitalize}/save                    controllers.#{controller}.save()")
+        routes.push("GET      /#{name.capitalize}/:#{id_field[0]}         controllers.#{controller}.show(#{id_field[0]}: #{Play.getPackType(id_field[1])})")
+        routes.push("GET      /#{name.capitalize}/delete/:#{id_field[0]}  controllers.#{controller}.delete(#{id_field[0]}: #{Play.getPackType(id_field[1])})")
         
         append_to_file "conf/routes", "\n##{name.capitalize}\n" +routes.join("\n")
         
@@ -170,20 +183,19 @@ module Mvcgenerator
       
       def create_view
         
-        path = "#{package_to_directory}#{name}/views/"
-        #path = options[:package].gsub(/\./, "/") + path if options[:package]
-        template('templates/play/scoffold/views/form.erb', 'app/'+ path + "/form.scala.html")
-        template('templates/play/scoffold/views/index.erb', 'app/'+ path + "/index.scala.html")
-        template('templates/play/scoffold/views/show.erb', 'app/'+ path + "/show.scala.html")
+        path = "#{package_to_directory}#{name}/"
+        template('templates/play/scoffold/views/form.erb', 'app/views/'+ path + "/form.scala.html")
+        template('templates/play/scoffold/views/index.erb', 'app/views/'+ path + "/index.scala.html")
+        template('templates/play/scoffold/views/show.erb', 'app/views/'+ path + "/show.scala.html")
 
       end
       
       def create_helper
         
-        helper = "#{name.capitalize}Helper.java"
-        helper = package_to_directory + helper if options[:package]
+        #helper = "#{name.capitalize}Helper.java"
+        #helper = package_to_directory + helper if options[:package]
         
-        template('templates/play/scoffold/helper.erb', 'app/helpers/'+ helper)
+        #template('templates/play/scoffold/helper.erb', 'app/helpers/'+ helper)
         
       end
       
@@ -198,23 +210,9 @@ module Mvcgenerator
       
       def initLayout
         
-=begin
-        insert_into_file "app/views/main.scala.html", :after => "@(title: String" do
-          ', scripts: Html = Html(""), styles: Html = Html("")'
-        end
-        
-        insert_into_file "app/views/main.scala.html", :before => /\s*<\/head>/ do
-          "\n\t\t@styles"
-        end
-        
-        insert_into_file "app/views/main.scala.html", :before => /\s*<\/body>/ do
-          "\n\t\t@scripts"
-        end
-=end        
-        
         directory "templates/play/scoffold/views/layouts", "app/views/layouts/"
         
-        filenames = Dir.glob("app/views/layouts/*.erb") 
+        filenames = Dir.glob("app/views/layouts/*.erb")
         filenames.each do |filename|
           File.rename(filename, filename[0..-5]+".scala.html")
         end
@@ -229,14 +227,7 @@ module Mvcgenerator
       end
 
     end
-=begin    
-    class Sub < Thor
-      desc "sub", "command"
-      def command
-        puts "sub command"
-      end
-    end
-=end    
+   
     class Play < Thor
       
       register(Pojo, 'pojo', 'pojo is comming', 'make pojo file')
@@ -246,9 +237,6 @@ module Mvcgenerator
       register(Scoffold, 'scoffold', 'view is comming', 'make view file')
       
       register(Init, 'init', 'initlayout', 'initlayout')
-      
-      #desc "remote SUBCOMMAND ...ARGS", "manage set of tracked repositories"
-      #subcommand "sub", Sub
       
       def self.getPackType(type)
       
@@ -260,7 +248,8 @@ module Mvcgenerator
           'long'       => 'Long', 
           'float'      => 'Float', 
           'double'     => 'Double',
-          'boolean'    => 'Boolean'
+          'boolean'    => 'Boolean',
+          'string'     => 'String'
           }
 
         return type_hash[type] if(type_hash.has_key? type)

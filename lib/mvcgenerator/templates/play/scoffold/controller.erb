@@ -3,44 +3,52 @@ package controllers<%= "." + options[:package] if options[:package]%>;
 import play.*;
 import play.mvc.*;
 import play.data.*;
+import play.db.ebean.*;
+import com.avaje.ebean.Ebean;
 
 import java.util.*;
 
-import <%= options[:package] + "." if options[:package]%><%=name%>.views.html.*;
+import views.html.<%= options[:package] + "." if options[:package]%><%=name%>.*;
 
-import helpers<%= "." + options[:package] if options[:package]%>.<%=name.capitalize%>Helper;
-import models<%= "." + options[:package] if options[:package]%>.<%=name.capitalize%>ViewModel;
+import models<%= "." + options[:package] if options[:package]%>.<%=name.capitalize%>;
+
+<% id_field = nil
+fields.each do |field|
+    ps = field.split(":")
+    id_field = ps if ps.length > 2 && ps[2] == "Id"
+end-%>
 
 public class <%=name.capitalize%>Controller extends <%= options[:super] ? options[:super] : 'Controller'%> {
 	
-	static Form<<%=name.capitalize%>ViewModel> <%= name %>From = Form.form(<%=name.capitalize%>ViewModel.class);
+	static Form<<%=name.capitalize%>> <%= name %>From = Form.form(<%=name.capitalize%>.class);
 	
 	public static Result index(int pageIndex, int pageSize){
 		
 		// pagedList
-		List<<%=name.capitalize%>ViewModel> model = <%=name.capitalize%>Helper.findAll(pageIndex, pageSize);
+		List<<%=name.capitalize%>> records = <%=name.capitalize%>.query(pageIndex, pageSize);
 		
-		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.index.render(model));
+		return ok(views.html.<%= options[:package] + "." if options[:package]%><%=name%>.index.render(records));
 	}
 	
 	/**
 	 * show <%=name.capitalize%> record in edit mode
-	 * when it's in create mode,  the id is 0, when update, id is <%=name.capitalize%>ViewModel model record's id
+	 * when it's in create mode,  the id is 0, when update, id is <%=name.capitalize%> model record's id
 	 */
 	public static Result create(){
 		
-		<%=name.capitalize%>ViewModel model = new <%=name.capitalize%>ViewModel();
+		//<%=name.capitalize%> model = new <%=name.capitalize%>();
 		
-		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.form.render(model));
+		return ok(views.html.<%= options[:package] + "." if options[:package]%><%=name%>.form.render(null));
 	}
 	
 	/**
 	 * add a <%=name.capitalize%> record
  	 */
-	public static Result update(int id){
-		<%=name.capitalize%>ViewModel model =  <%=name.capitalize%>Helper.getById(id);
+	public static Result update(<%=id_field[1]%> <%=id_field[0]%>){
+	    
+		<%=name.capitalize%> model = <%=name.capitalize%>.getBy<%=id_field[0].capitalize%>(<%=id_field[0]%>);
 		
-		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.form.render(model));
+		return ok(views.html.<%= options[:package] + "." if options[:package]%><%=name%>.form.render(model));
 	}
 	
 	/**
@@ -48,14 +56,16 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
  	 */
 	public static Result save(){
 	    
-		<%=name.capitalize%>ViewModel model = <%= name %>From.bindFromRequest().get();
+		<%=name.capitalize%> model = <%= name %>From.bindFromRequest().get();
 		
 		if(<%= name %>From.hasErrors()){
-			return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.form.render(model));
+		    
+			return ok(views.html.<%= options[:package] + "." if options[:package]%><%=name%>.form.render(model));
 		} else {
-			int id = <%=name.capitalize%>Helper.save(model);
+			//int id = <%=name.capitalize%>Helper.save(model);
+			Ebean.save(model);
 			
-			return show(id);
+			return show(model.get<%=id_field[0].capitalize%>());
 		}
 		
 		
@@ -65,17 +75,20 @@ public class <%=name.capitalize%>Controller extends <%= options[:super] ? option
 	/**
 	 * show the <%=name.capitalize%> record by id
  	 */
-	public static Result show(int id){
-		<%=name.capitalize%>ViewModel model = <%=name.capitalize%>Helper.getById(id);
-		return ok(<%= options[:package] + "." if options[:package]%><%=name%>.views.html.show.render(model));
+	public static Result show(<%=id_field[1]%> <%=id_field[0]%>){
+		
+		<%=name.capitalize%> model = <%=name.capitalize%>.getBy<%=id_field[0].capitalize%>(<%=id_field[0]%>);
+		return ok(views.html.<%= options[:package] + "." if options[:package]%><%=name%>.show.render(model));
 	}
 	
 	/**
 	 * delete the <%=name.capitalize%> record by id
  	 */
-	public static Result delete(int id){
+	public static Result delete(<%=id_field[1]%> <%=id_field[0]%>){
 		
-		<%=name.capitalize%>Helper.deleteById(id);
+		<%=name.capitalize%> model = <%=name.capitalize%>.getBy<%=id_field[0].capitalize%>(<%=id_field[0]%>);
+		
+		Ebean.delete(model);
 		
 		return index(0, 10);
 	}

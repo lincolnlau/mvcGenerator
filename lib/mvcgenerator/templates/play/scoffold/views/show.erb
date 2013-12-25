@@ -1,4 +1,5 @@
-@(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>ViewModel)
+@(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>)
+<% id_field = nil %>
 @layouts.main("Detail"){
 <div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title"><%= name %></h3></div>
@@ -6,12 +7,13 @@
 		<div class="row">
 			<% fields.each do |field| -%>
 			<% ps = field.split(":") -%>
-			<% if(ps[0] != "id") -%><div class="col-md-2"><%=ps[0]%></div><div class="col-md-10">@model.get<%= ps[0].capitalize %>()</div><% end -%>
+			<% id_field = ps if ps.length > 2 && ps[2] == "Id" -%>
+			<div class="col-md-2"><%=ps[0]%></div><div class="col-md-10">@model.get<%= ps[0].capitalize %>()</div>
 			<% end -%>
 		</div>
 	</div>
 	<div class="panel-footer">
-		<a class="btn btn-success active" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.update(model.getId())">Update</a> <a class="btn btn-link" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
+		<a class="btn btn-success active" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.update(model.get<%=id_field[0].capitalize%>())">Update</a> <a class="btn btn-link" href="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.index(0, 10)">Go Back</a>
 	</div>
 </div>
 }

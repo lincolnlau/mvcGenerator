@@ -1,0 +1,43 @@
+package models<%='.' + options[:package] if(options[:package])%>;
+
+import play.db.ebean.*;
+import javax.persistence.*;
+import java.util.*;
+
+
+@Entity
+public class <%=name.capitalize%> extends Model {
+<% id_field = nil -%>
+<% fields.each do |field| -%>
+<% ps = field.split(":")-%>
+    <%= "@" + ps[2] if ps.length > 2 %>
+    <% id_field = ps if ps.length > 2 && ps[2] == "Id" -%>private  <%=ps[1] + " " + ps[0] + ";\n"%>
+<%end-%>
+
+<% fields.each do |field| -%><% ps = field.split(":")-%>  
+    /**
+     * @parameter set <%=ps[0]%>'s value
+     */
+    public void set<%=ps[0].capitalize%>(<%=ps[1]%> <%=ps[0]%>) {
+        this.<%=ps[0]%> = <%=ps[0]%>;
+    } 
+
+    /**
+     * @return <%=ps[1]%>
+     */
+    public <%=ps[1]%> <%if(ps[1] == "boolean")-%>is<% else -%>get<% end -%><%=ps[0].capitalize%>() {
+        return this.<%=ps[0]%>;
+    }
+<%end-%>
+
+    public static Finder<String, App> find = new Finder<String, App>(String.class, <%=name.capitalize%>.class);
+
+    public static <%=name.capitalize%> getBy<%=id_field[0].capitalize%>(<%=id_field[1] %> <%=id_field[0] %>){
+        return find.where().eq("<%=id_field[0]%>", <%=id_field[0] %>).findUnique();    
+    }
+    
+    public static List<<%=name.capitalize%>> query(int pageNumber, int pageSize){
+        //totalAppCount = App.find.where().eq("userId", userId).ilike("name", "%" + keyword + "%").findRowCount();
+        return find.where().findPagingList(pageSize).getPage(pageNumber).getList();
+    }
+}

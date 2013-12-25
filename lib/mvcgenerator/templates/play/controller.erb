@@ -18,7 +18,7 @@ public class <%=name%>Controller extends <%= options[:super] ? options[:super] :
     public static Result <%=action_name%>(<%if input_parameters -%><% input_parameters.each do |parameter| -%><% para = parameter.split(':') -%><%= para[1] + ' ' +para[0]%><%parameter == input_parameters.last ? "" : ", "%><% end -%><% end -%>){
 		
 		/*
-		 * TODO:: you can put you logical here	
+		 * TODO:: you can put you logical here
 		 */
 	<% if output_parameters -%>
 		<% out_para_array = [] -%>

@@ -1,21 +1,22 @@
-@(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>ViewModel)
-@title(id: Int) = @{
-	if(id > 0) {
+@(model : models.<%= options[:package] + "." if options[:package]%><%=name.capitalize%>)
+@title(obj: Object) = @{
+	if(obj != null) {
 		"Update"
 	} else {
 		"Create"
 	}
 }
-
-@layouts.main(title(model.getId())){
+<% id_field = nil %>
+@layouts.main(title(model)){
 <form action="@controllers.<%= options[:package] + "." if options[:package]%>routes.<%=name.capitalize%>Controller.save()" method="post" class="form-horizontal" role="form">
 <div class="panel panel-info">
-	<div class="panel-heading"><h3 class="panel-title">@if(model.getId() > 0 ) { update } else { create } <%= name %></h3></div>
+	<div class="panel-heading"><h3 class="panel-title">@if(model != null ) { update } else { create } <%= name %></h3></div>
 	<div class="panel-body">
 		<% fields.each do |field| -%>
 		<% ps = field.split(":") -%>
-    		<% if(ps[0] == "id") -%>
-    		<input type="hidden" name="<%=ps[0] %>" id="<%=ps[0] %>" value="@model.getId()" />
+		<% id_field = ps if ps.length > 2 && ps[2] == "Id" -%>
+    		<% if(ps.length > 2 && ps[2] == "Id") -%>
+    		<input type="hidden" name="<%=ps[0] %>" id="<%=ps[0] %>" value="@model.get<%=ps[0].capitalize%>()" />
     		<% else  -%>
     		<div class="form-group">
     			<label class="col-sm-2 control-label" for="<%=ps[0] %>"><%=ps[0] %></label>
