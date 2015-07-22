@@ -12,7 +12,7 @@ module Mvcgenerator
       # implement git fetch here
     end
  
-    desc "生成paly framework的mvc代码"
+    desc "生成play framework的mvc代码"
     subcommand "play", Play
     
     desc "生成Kohana的mvc代码"
